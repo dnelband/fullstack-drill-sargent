@@ -1,0 +1,35 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "dispatch-board: dev",
+      "type": "shell",
+      "command": "pnpm dev",
+      "options": {
+        "cwd": "${workspaceFolder}/stacks/vite-express-postgres"
+      },
+      "presentation": {
+        "panel": "dedicated",
+        "group": "dispatch-board",
+        "reveal": "always",
+        "clear": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "dispatch-board: tests",
+      "type": "shell",
+      "command": "pnpm test:challenge:watch",
+      "options": {
+        "cwd": "${workspaceFolder}/stacks/vite-express-postgres"
+      },
+      "presentation": {
+        "panel": "dedicated",
+        "group": "dispatch-board",
+        "reveal": "always",
+        "clear": true
+      },
+      "problemMatcher": []
+    }
+  ]
+}

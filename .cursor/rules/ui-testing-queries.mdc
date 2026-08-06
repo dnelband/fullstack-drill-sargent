@@ -1,0 +1,35 @@
+---
+description: UI challenge tests query by role first, data-testid second
+alwaysApply: true
+---
+
+# UI Test Queries
+
+Challenge UI tests must stay implementation-flexible. Do not require a specific label/`htmlFor`/`aria-labelledby` wiring pattern.
+
+## Query priority
+
+1. **Accessible roles** — `getByRole` / `findByRole` with an accessible name (`aria-label`, associated `<label>`, button text, heading text, etc.)
+2. **`data-testid`** — only when there is no stable role (e.g. numeric summary tiles)
+
+```tsx
+// ✅ Preferred
+screen.getByRole("combobox", { name: /status filter/i });
+screen.getByRole("textbox", { name: /notes/i });
+screen.getByRole("button", { name: /claim callback/i });
+
+// ✅ OK when no role fits
+screen.getByTestId("summary-open");
+
+// ❌ Avoid — couples tests to one labeling style
+screen.getByLabelText("Status filter");
+```
+
+## Authoring implications
+
+- Name controls for assistive tech somehow (`aria-label` **or** a correctly associated `<label>`). Tests only care that the role + name resolve.
+- Prefer stable accessible names in task copy (e.g. "Status filter", "Notes") so exercise UIs can pass without copying solution markup.
+- Task titles must name exactly what the test asserts — one behavior per task.
+- For the same control, add a simple “basic behavior works” test before adding a race-condition or stale-response test.
+- Do not introduce `data-testid` for ordinary buttons, inputs, or selects that already have roles.
+- Use `data-testid` for non-interactive display fields when free-text matching would couple to copy (e.g. callback list status/assignee tiles).
