@@ -10,6 +10,7 @@ Reusable interview-style tech challenges live in this repository.
 ## Current Stacks
 
 - `stacks/vite-express-postgres/`: Vite + Express + Postgres + Tailwind challenge workspace
+- `stacks/mern/`: Vite + Express + MongoDB (native driver) + Tailwind challenge workspace
 
 ## Workflow
 

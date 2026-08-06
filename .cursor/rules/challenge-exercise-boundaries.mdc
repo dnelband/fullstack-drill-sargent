@@ -1,5 +1,5 @@
 ---
-description: Exercise boundaries — client HTTP/fetch is always part of the challenge
+description: Exercise boundaries — client HTTP is always in-scope; keep stack idioms
 alwaysApply: true
 ---
 
@@ -7,42 +7,28 @@ alwaysApply: true
 
 ## Client HTTP is exercise work
 
-Writing the client fetch/API layer is **always** part of the exercise. Do not ship ready-made `fetch` helpers, API client modules, or injectable fake-API props that let the UI skip implementing HTTP.
+Do not ship ready-made `fetch` helpers, API client modules, or injectable fake-API props that let the UI skip HTTP.
 
-**In scope for the exercise path** (`challenges/<slug>/exercise/`):
+**In scope** (`challenges/<slug>/exercise/`): server routes + data access, React UI/state, `fetch` (params, bodies, status, conflict payloads).
 
-- Server routes and SQL
-- React UI and state
-- Calling the API with `fetch` (or equivalent), including query params, request bodies, status handling, and conflict payloads
-
-**Scaffolding only** (outside exercise):
-
-- App shell (Vite/Express bootstrap, challenge loader, Tailwind)
-- Shared types / task titles
-- DB reset/seed scripts
-- Challenge tests
+**Scaffolding only:** app shell, shared types/task titles, DB reset/seed, challenge tests.
 
 ## UI tests mock the network
 
-UI tests must exercise the real client HTTP code path. Inject mocks at the network layer (`fetch` / MSW), not via an `api` prop or prebuilt client wrapper.
-
-```tsx
-// ❌ BAD — skips exercise fetch work
-<ChallengeApp api={makeFakeApi()} />
-
-// ✅ GOOD — app owns fetch; tests stub the network
-vi.stubGlobal("fetch", mockFetch);
-render(<ChallengeApp />);
-```
+Exercise the real client HTTP path. Stub `fetch` / MSW — never inject an `api` prop.
 
 ## Claim identity must be explicit
 
-If a challenge includes a claim/assign action, never leave the acting user identity unstated.
+If claim/assign is in scope and choosing the acting user is **not**, provide `CURRENT_MEMBER_ID` / `CURRENT_AGENT_ID` in the exercise UI. Do not make learners guess the id.
 
-- If choosing or loading the current user is **not** part of the exercise, provide an explicit constant like `CURRENT_AGENT_ID` in the exercise UI.
-- If choosing or loading the current user **is** part of the exercise, say so directly in the README and task list.
-- Do not make learners guess which agent or user id should be sent in a mutation body.
+## Stack-native JSON shapes
+
+Keep API JSON aligned with the datastore idiom unless remapping is itself an exercise goal:
+
+- Mongo challenges: prefer `_id` in JSON (do not force `id` mid-challenge).
+- SQL challenges: `id` is fine.
+- Document field names in README/types **before** writing tests; changing the contract while the learner solves is costly.
 
 ## Reference solutions
 
-Hidden solutions in `.solutions/` may include their own `api.ts` (or equivalent) next to the UI. That code is the solved answer, not shared scaffolding for the exercise.
+`.solutions/` may have its own `api.ts`. That is the solved answer, not exercise scaffolding.

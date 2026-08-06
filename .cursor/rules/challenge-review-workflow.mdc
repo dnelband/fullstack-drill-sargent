@@ -1,0 +1,42 @@
+---
+description: After a solve — review, snapshot, update profile, plan the next board
+alwaysApply: true
+---
+
+# Challenge Review Workflow
+
+When the learner finishes a challenge (or asks for a review):
+
+## 1. Verify + snapshot
+
+- Run `pnpm test:challenge` (or note if they ask to skip mid-edit).
+- Copy `challenges/<slug>/exercise/` → `.local/submissions/<slug>/YYYY-MM-DD/`.
+
+## 2. Write the review
+
+Create `.local/reviews/YYYY-MM-DD-<slug>.md` with:
+
+- Outcome + self-reported time
+- Difficulty context (intrinsic / 45m / take-home)
+- What landed
+- Gaps tests did not catch (general vs `byStack.<stack>`)
+- Progress vs prior challenges
+- Coverage notes (false greens → new tests)
+
+## 3. Update `.local/profile.json`
+
+- Append `challengeHistory`
+- Move fixed habits into `strengths`; keep open gaps in `weaknesses`
+- Split `general` vs `byStack.<stack>`
+- Refresh `nextPracticeHints` from this review
+- Bump `updatedAt` / level estimate only with new evidence
+
+## 4. Feed the next challenge
+
+Before authoring the next board, read profile `weaknesses` + `nextPracticeHints` and encode the **product** ones as tests (e.g. draft→body save). Keep judgment gaps in review space.
+
+## Coaching while they solve
+
+- Prefer dumping full actual/expected JSON over debating matcher semantics.
+- Do not change shared types/tests mid-solve unless they ask (e.g. `_id` vs `id`).
+- Coach concurrency/atomicity; do not paste the reference solution.

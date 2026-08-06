@@ -1,9 +1,10 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "node:path";
 
 export default defineConfig({
+  root: path.resolve(import.meta.dirname, "client"),
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
@@ -12,20 +13,13 @@ export default defineConfig({
       "@shared": path.resolve(import.meta.dirname, "shared"),
     },
   },
-  test: {
-    globals: true,
-    environment: "node",
-    hookTimeout: 30000,
-    pool: "forks",
-    sequence: {
-      concurrent: false,
+  server: {
+    port: 4174,
+    fs: {
+      allow: [path.resolve(import.meta.dirname, "..", "..")],
     },
-    include: ["tests/**/*.test.ts", "tests/**/*.test.tsx"],
-    setupFiles: ["tests/setup-ui.ts"],
-    reporters: ["./tests/reporters/challenge-summary.ts"],
-    silent: true,
-    chaiConfig: {
-      truncateThreshold: 0,
-    },
+  },
+  preview: {
+    port: 4174,
   },
 });

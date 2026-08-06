@@ -1,0 +1,5 @@
+@import "tailwindcss";
+
+@source "../../challenges/**/*.{js,ts,jsx,tsx}";
+@source "../../.solutions/**/*.{js,ts,jsx,tsx}";
+@source "./**/*.{js,ts,jsx,tsx}";

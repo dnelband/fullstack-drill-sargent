@@ -1,0 +1,39 @@
+---
+description: Challenge Vitest DX — full diffs, mutation asserts, quiet summary
+alwaysApply: true
+---
+
+# Challenge Test DX
+
+Learners debug from the challenge summary reporter. Truncated objects waste sessions.
+
+## Reporter + Vitest
+
+Every stack `vitest.config.ts` must:
+
+```ts
+reporters: ["./tests/reporters/challenge-summary.ts"],
+silent: true,
+chaiConfig: { truncateThreshold: 0 },
+```
+
+The summary reporter must print the **full** error message (all lines), not `message.split("\n")[0]`.
+
+## Mutation assertions
+
+For claim/PATCH success tests, prefer an explicit expected object and put full JSON in the assertion message:
+
+```ts
+const expected = { /* contract fields */ };
+expect(
+  response.body,
+  `actual=${JSON.stringify(response.body, null, 2)}\nexpected=${JSON.stringify(expected, null, 2)}`,
+).toMatchObject(expected);
+```
+
+`toMatchObject` is a **subset** match (extra fields OK). Failures mean a listed field is missing or wrong — not deep equality of the whole body.
+
+## UI network mocks
+
+- Stub at `fetch`; pass `init` into mutation handlers so tests can assert request bodies.
+- Happy-path save mocks should update the listed entity from the **request body** (or return that body) so refetch-based UIs and apply-response UIs both get a fair assert.

@@ -1,0 +1,45 @@
+---
+description: How to author the next practice challenge (coverage, density, contract)
+alwaysApply: true
+---
+
+# Challenge Authoring
+
+Target band: senior. Live budget ~45m. Prefer **slightly harder than average market live**, not wrong-hard (async race trivia for its own sake).
+
+## Density calibration
+
+- Prefer the brief-desk / dispatch-board product spine (list + filters + claim + expand→edit→save + 409+latest).
+- Intrinsic **Hard**; ~45m live often **Hardcore**; ~2–4h take-home **Medium/Hard**.
+- Trim surface ~10–15% only if aiming a true 45m Hard (not Hardcore).
+
+## Coverage philosophy
+
+**Tests = product contract. Reviews = judgment gaps.**
+
+Keep in tests:
+
+- Documented API filters/order/defaults
+- Claim success + second claim 409 + concurrent claim winner
+- Versioned PATCH success + stale 409 with `message` + `latest`
+- Claim refreshes list **and** summary (or equivalent aggregate)
+- **Successful save reflects draft notes/status/version** (body + UI)
+- Expand → read-only details + Edit → form (form not visible before Edit)
+
+Leave for review (do not spoon-feed):
+
+- `return` after Express `res.json`
+- Atomic write filters vs check-then-act (discuss in review)
+- Regex escaping, projecting away `$lookup` arrays, perfect response hygiene
+
+## UI contract defaults
+
+Inline expand/collapse (not a separate pane). Row hooks `{id}-*-row` + field tiles. Details: `{id}-details-view`, `{id}-details-form`, `{id}-notes`, `{id}-version`.
+
+## Before shipping a challenge
+
+1. `pnpm test:solution` green
+2. Exercise stubs compile; no spoilers in exercise
+3. Happy-path save test present **above** the 409 save test
+4. Challenge summary reporter shows **full** assertion messages (no first-line truncation)
+5. README domain fields match shared types and seed ids

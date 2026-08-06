@@ -1,5 +1,5 @@
 ---
-description: UI challenge tests query by role first, data-testid second
+description: UI challenge tests query by role first; happy-path before conflict
 alwaysApply: true
 ---
 
@@ -9,14 +9,13 @@ Challenge UI tests must stay implementation-flexible. Do not require a specific 
 
 ## Query priority
 
-1. **Accessible roles** — `getByRole` / `findByRole` with an accessible name (`aria-label`, associated `<label>`, button text, heading text, etc.)
-2. **`data-testid`** — only when there is no stable role (e.g. numeric summary tiles)
+1. **Accessible roles** — `getByRole` / `findByRole` with an accessible name
+2. **`data-testid`** — only when there is no stable role (e.g. summary tiles, list field tiles)
 
 ```tsx
 // ✅ Preferred
 screen.getByRole("combobox", { name: /status filter/i });
-screen.getByRole("textbox", { name: /notes/i });
-screen.getByRole("button", { name: /claim callback/i });
+screen.getByRole("button", { name: /claim brief/i });
 
 // ✅ OK when no role fits
 screen.getByTestId("summary-open");
@@ -27,9 +26,10 @@ screen.getByLabelText("Status filter");
 
 ## Authoring implications
 
-- Name controls for assistive tech somehow (`aria-label` **or** a correctly associated `<label>`). Tests only care that the role + name resolve.
-- Prefer stable accessible names in task copy (e.g. "Status filter", "Notes") so exercise UIs can pass without copying solution markup.
+- Name controls for assistive tech somehow (`aria-label` **or** associated `<label>`).
+- Prefer stable accessible names in task copy so exercise UIs need not copy solution markup.
 - Task titles must name exactly what the test asserts — one behavior per task.
-- For the same control, add a simple “basic behavior works” test before adding a race-condition or stale-response test.
-- Do not introduce `data-testid` for ordinary buttons, inputs, or selects that already have roles.
-- Use `data-testid` for non-interactive display fields when free-text matching would couple to copy (e.g. callback list status/assignee tiles).
+- **Basic before conflict:** for the same control, add happy-path before 409 / race / stale-response tests.
+- **Form save is product:** if the UI has Edit → draft fields → Save, include a test that asserts the PATCH/PUT **request body** uses draft values **and** the UI reflects notes/status/version after success. A 409-only save test is not enough (false green).
+- Do not add `data-testid` for ordinary buttons/inputs/selects that already have roles.
+- Use `data-testid` for non-interactive display fields when free-text matching would couple to copy.
