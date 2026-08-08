@@ -1,6 +1,6 @@
 export const currentChallenge = {
-  slug: "brief-desk",
-  title: "Brief Desk",
+  slug: "pulse-quiz",
+  title: "Pulse Quiz",
 } as const;
 
 export type ChallengeSlug = typeof currentChallenge.slug;

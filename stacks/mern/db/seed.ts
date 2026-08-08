@@ -1,58 +1,228 @@
 import "dotenv/config";
 import { getDb, closeDb } from "../server/db.ts";
-import type { BriefPriority, BriefStatus } from "../shared/types.ts";
+import { QUIZ_POOL_SIZE } from "../shared/quiz-constants.ts";
 
-const members: Array<{ _id: string; display_name: string; discipline: string }> = [
-  { _id: "m1", display_name: "Ava Chen", discipline: "Engineering" },
-  { _id: "m2", display_name: "Ben Ortiz", discipline: "Design" },
-  { _id: "m3", display_name: "Cara Nilsen", discipline: "Engineering" },
-  { _id: "m4", display_name: "Devon Blake", discipline: "Content" },
-  { _id: "m5", display_name: "Elena Vogt", discipline: "Engineering" },
-  { _id: "m6", display_name: "Farah Haddad", discipline: "Design" },
-];
-
-const briefs: Array<{
+type SeedOption = { _id: string; label: string };
+type SeedQuestion = {
   _id: string;
-  client_name: string;
-  title: string;
-  priority: BriefPriority;
-  status: BriefStatus;
-  assigned_member_id: string | null;
-  due_at: string;
-  notes: string;
-}> = [
-  { _id: "b1", client_name: "Northline Bank", title: "Homepage rate table refresh", priority: "high", status: "open", assigned_member_id: null, due_at: "2026-08-10T09:00:00.000Z", notes: "Legal needs the APY copy updated before the campaign launch." },
-  { _id: "b2", client_name: "Parcelio", title: "Checkout empty-state illustration", priority: "medium", status: "open", assigned_member_id: null, due_at: "2026-08-10T09:15:00.000Z", notes: "Replace the placeholder art with the approved mascot set." },
-  { _id: "b3", client_name: "Harbor Health", title: "Patient portal MFA copy", priority: "high", status: "claimed", assigned_member_id: "m2", due_at: "2026-08-10T09:30:00.000Z", notes: "Compliance asked for a clearer recovery-path explanation." },
-  { _id: "b4", client_name: "Lumen Foods", title: "Recipe card schema markup", priority: "medium", status: "open", assigned_member_id: null, due_at: "2026-08-10T09:45:00.000Z", notes: "SEO brief is attached in the shared drive." },
-  { _id: "b5", client_name: "Orbit Travel", title: "Mobile nav overflow on iOS", priority: "high", status: "open", assigned_member_id: null, due_at: "2026-08-10T10:00:00.000Z", notes: "Reproduced on iPhone 14 Safari only." },
-  { _id: "b6", client_name: "Quilt Co", title: "Return policy FAQ rewrite", priority: "low", status: "completed", assigned_member_id: "m4", due_at: "2026-08-10T10:15:00.000Z", notes: "Published after legal review." },
-  { _id: "b7", client_name: "Ridge Analytics", title: "Dashboard filter chip colors", priority: "medium", status: "open", assigned_member_id: null, due_at: "2026-08-10T10:30:00.000Z", notes: "Match the new brand tokens from the Figma library." },
-  { _id: "b8", client_name: "Summit Fitness", title: "Class booking confirmation email", priority: "high", status: "claimed", assigned_member_id: "m1", due_at: "2026-08-10T10:45:00.000Z", notes: "Subject line A/B variants are in the ticket." },
-  { _id: "b9", client_name: "Tide Retail", title: "PLP sort default to newest", priority: "low", status: "open", assigned_member_id: null, due_at: "2026-08-10T11:00:00.000Z", notes: "Merchandising wants newest arrivals first." },
-  { _id: "b10", client_name: "Umbra Studios", title: "Case study hero video autoplay", priority: "medium", status: "open", assigned_member_id: null, due_at: "2026-08-10T11:15:00.000Z", notes: "Mute by default; respect reduced-motion." },
-  { _id: "b11", client_name: "Vesper Hotels", title: "Accessibility contrast on CTA", priority: "high", status: "open", assigned_member_id: null, due_at: "2026-08-10T11:30:00.000Z", notes: "Fails WCAG AA on the sand background." },
-  { _id: "b12", client_name: "Willow CRM", title: "Import CSV error messaging", priority: "medium", status: "claimed", assigned_member_id: "m3", due_at: "2026-08-10T11:45:00.000Z", notes: "Show row-level failures, not a generic toast." },
-  { _id: "b13", client_name: "Yarrow Apps", title: "Pricing page annual toggle", priority: "low", status: "open", assigned_member_id: null, due_at: "2026-08-10T12:00:00.000Z", notes: "Default to annual with monthly alternate." },
-  { _id: "b14", client_name: "Zinc Logistics", title: "Tracking page timezone bug", priority: "high", status: "open", assigned_member_id: null, due_at: "2026-08-10T12:15:00.000Z", notes: "Events render in UTC instead of local." },
-  { _id: "b15", client_name: "Atlas Nonprofit", title: "Donation receipt PDF branding", priority: "medium", status: "open", assigned_member_id: null, due_at: "2026-08-10T12:30:00.000Z", notes: "Swap to the 2026 letterhead assets." },
-  { _id: "b16", client_name: "Beacon Schools", title: "Parent portal password reset", priority: "high", status: "open", assigned_member_id: null, due_at: "2026-08-10T12:45:00.000Z", notes: "Emails are landing in spam for Gmail users." },
-  { _id: "b17", client_name: "Cedar Market", title: "Cart upsell carousel pause", priority: "low", status: "completed", assigned_member_id: "m5", due_at: "2026-08-10T13:00:00.000Z", notes: "Autoplay disabled when off-screen." },
-  { _id: "b18", client_name: "Drift Media", title: "Blog tag archive pagination", priority: "medium", status: "open", assigned_member_id: null, due_at: "2026-08-10T13:15:00.000Z", notes: "Page 2 returns empty for tags with >12 posts." },
+  prompt: string;
+  category: "javascript" | "react" | "mongodb";
+  options: SeedOption[];
+  correct_option_id: string;
+};
+
+function q(
+  index: number,
+  category: SeedQuestion["category"],
+  prompt: string,
+  correctIndex: 0 | 1 | 2 | 3,
+  labels: [string, string, string, string],
+): SeedQuestion {
+  const id = `q${index}`;
+  const options = labels.map((label, optionIndex) => ({
+    _id: `${id}-o${optionIndex + 1}`,
+    label,
+  }));
+  return {
+    _id: id,
+    prompt,
+    category,
+    options,
+    correct_option_id: options[correctIndex]._id,
+  };
+}
+
+const questions: SeedQuestion[] = [
+  q(1, "javascript", "What does `===` compare in JavaScript?", 1, [
+    "Value only",
+    "Value and type",
+    "References only",
+    "Truthy-ness only",
+  ]),
+  q(2, "javascript", "Which keyword declares a block-scoped variable?", 2, [
+    "var",
+    "static",
+    "let",
+    "define",
+  ]),
+  q(3, "javascript", "What does `Array.prototype.map` return?", 0, [
+    "A new array",
+    "The mutated original array",
+    "A single value",
+    "An iterator only",
+  ]),
+  q(4, "javascript", "Which value is nullish?", 3, [
+    "0",
+    "false",
+    '""',
+    "null",
+  ]),
+  q(5, "javascript", "What is the result of `typeof null`?", 1, [
+    '"null"',
+    '"object"',
+    '"undefined"',
+    '"number"',
+  ]),
+  q(6, "javascript", "Which method schedules a macrotask?", 0, [
+    "setTimeout",
+    "queueMicrotask",
+    "Promise.resolve().then",
+    "await Promise.resolve()",
+  ]),
+  q(7, "javascript", "What does `JSON.parse` throw on invalid input?", 2, [
+    "TypeError",
+    "RangeError",
+    "SyntaxError",
+    "ReferenceError",
+  ]),
+  q(8, "javascript", "Which operator is nullish coalescing?", 1, [
+    "||",
+    "??",
+    "?.",
+    "&&",
+  ]),
+  q(9, "javascript", "What does `Promise.all` do on the first rejection?", 0, [
+    "Rejects immediately",
+    "Waits for all then rejects",
+    "Ignores the rejection",
+    "Retries automatically",
+  ]),
+  q(10, "javascript", "Which array method short-circuits on the first truthy predicate?", 3, [
+    "map",
+    "filter",
+    "forEach",
+    "some",
+  ]),
+  q(11, "react", "What hook stores mutable values without re-rendering?", 1, [
+    "useState",
+    "useRef",
+    "useMemo",
+    "useId",
+  ]),
+  q(12, "react", "When do effects run by default after mount?", 0, [
+    "After paint",
+    "Before paint",
+    "During render",
+    "Only on unmount",
+  ]),
+  q(13, "react", "What should you pass to `key` in a list?", 2, [
+    "Array index always",
+    "A random number each render",
+    "A stable id for the item",
+    "The component display name",
+  ]),
+  q(14, "react", "Controlled inputs take their value from…", 1, [
+    "The DOM only",
+    "React state/props",
+    "localStorage",
+    "CSS variables",
+  ]),
+  q(15, "react", "Which hook derives a value from other values during render?", 3, [
+    "useEffect",
+    "useLayoutEffect",
+    "useRef",
+    "useMemo",
+  ]),
+  q(16, "react", "What does React Strict Mode intentionally do in development?", 0, [
+    "Double-invoke certain lifecycles/effects",
+    "Disable concurrent features",
+    "Strip propTypes",
+    "Force class components",
+  ]),
+  q(17, "react", "Context is best for…", 2, [
+    "High-frequency mouse coordinates",
+    "Replacing all props always",
+    "Rarely changing shared values",
+    "CSS-in-JS only",
+  ]),
+  q(18, "react", "What cleans up a `useEffect`?", 1, [
+    "Returning a string",
+    "Returning a function",
+    "Throwing an error",
+    "Calling `useCleanup`",
+  ]),
+  q(19, "react", "Which event prop name is correct?", 0, [
+    "onClick",
+    "onclick",
+    "on-click",
+    "clickHandler",
+  ]),
+  q(20, "react", "Fragments let you…", 3, [
+    "Create portals",
+    "Avoid hooks rules",
+    "Mutate props",
+    "Group children without an extra DOM node",
+  ]),
+  q(21, "mongodb", "In the native driver, which method returns a cursor?", 0, [
+    "find",
+    "findOne",
+    "insertOne",
+    "estimatedDocumentCount",
+  ]),
+  q(22, "mongodb", "Which update operator increments a numeric field?", 2, [
+    "$set",
+    "$push",
+    "$inc",
+    "$addToSet",
+  ]),
+  q(23, "mongodb", "What does `findOneAndUpdate` with `returnDocument: \"after\"` return?", 1, [
+    "The pre-image only",
+    "The document after the update",
+    "Only the UpdateResult counts",
+    "A change stream",
+  ]),
+  q(24, "mongodb", "Case-insensitive substring search often uses…", 0, [
+    "$regex with $options: \"i\"",
+    "$eq only",
+    "$text without an index always",
+    "$where always",
+  ]),
+  q(25, "mongodb", "Which aggregation stage joins collections?", 3, [
+    "$match",
+    "$group",
+    "$project",
+    "$lookup",
+  ]),
+  q(26, "mongodb", "A filter `{ status: \"open\" }` on update makes the write…", 1, [
+    "Slower always",
+    "Conditional / atomic with the matched predicate",
+    "Impossible",
+    "Only valid with transactions",
+  ]),
+  q(27, "mongodb", "String `_id` values are…", 0, [
+    "Allowed when you set them explicitly",
+    "Forbidden by the server",
+    "Converted to ObjectId always",
+    "Only valid in Mongoose",
+  ]),
+  q(28, "mongodb", "Which operator adds a value to an array if missing?", 2, [
+    "$push",
+    "$pull",
+    "$addToSet",
+    "$pop",
+  ]),
+  q(29, "mongodb", "Projection `{ password: 0 }` means…", 1, [
+    "Include only password",
+    "Exclude password",
+    "Sort by password",
+    "Index password",
+  ]),
+  q(30, "mongodb", "What does `$sample: { size: 1 }` do?", 0, [
+    "Picks a random document",
+    "Samples CPU usage",
+    "Limits to first document by _id",
+    "Creates a capped collection",
+  ]),
 ];
+
+if (questions.length !== QUIZ_POOL_SIZE) {
+  throw new Error(`Expected ${QUIZ_POOL_SIZE} seed questions, got ${questions.length}`);
+}
 
 async function main() {
   const db = await getDb();
-  const now = new Date().toISOString();
-
-  await db.collection("members").insertMany(members as never);
-  await db.collection("briefs").insertMany(
-    briefs.map((brief) => ({
-      ...brief,
-      version: brief.status === "open" ? 1 : brief.status === "claimed" ? 2 : 3,
-      updated_at: now,
-    })) as never,
-  );
+  await db.collection("questions").insertMany(questions as never[]);
+  console.log(`[db] seeded ${questions.length} questions`);
 }
 
 main()

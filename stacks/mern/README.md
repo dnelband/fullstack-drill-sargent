@@ -4,8 +4,10 @@ Vite + Express + MongoDB (native driver) + Tailwind practice workspace.
 
 ## Current challenge
 
-- `challenges/brief-desk/` — agency client brief intake desk
-- `.solutions/brief-desk/` — reference implementation
+- `challenges/pulse-quiz/` — timed quiz (5/session from 30, exclude ids, deadline; API owns attempt SoT)
+- `.solutions/pulse-quiz/` — reference implementation
+
+Also on disk (inactive): `brief-desk`.
 
 ## Setup
 
@@ -21,13 +23,13 @@ App: client `http://localhost:4174`, API `http://localhost:4020`.
 ## Tests
 
 ```bash
-pnpm test:challenge        # exercise
-pnpm test:solution         # reference
+pnpm test:challenge
+pnpm test:solution
 pnpm test:challenge:watch
 ```
 
 ## Notes
 
-- No Mongoose — use the official `mongodb` package
+- No Mongoose — official `mongodb` package
 - Solve only under `challenges/<slug>/exercise/`
 - Do not edit `.solutions/` while practicing
