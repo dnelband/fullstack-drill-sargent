@@ -1,5 +1,5 @@
 ---
-description: Challenge Vitest DX — full diffs, mutation asserts, quiet summary
+description: Challenge Vitest DX — full diffs; no fixtures that invalidate a correct implementation
 alwaysApply: true
 ---
 
@@ -37,3 +37,43 @@ expect(
 
 - Stub at `fetch`; pass `init` into mutation handlers so tests can assert request bodies.
 - Happy-path save mocks should update the listed entity from the **request body** (or return that body) so refetch-based UIs and apply-response UIs both get a fair assert.
+
+## Hard rule — fixture must match storage (2026-08-08)
+
+**Failure mode:** test “expires” a serve with `updateOne({ _id: serveId as never })` while Mongo stored an ObjectId. `as never` is TypeScript-only. Update matches **0 docs**. Learner’s API is correct; test expects `correct: false`. The failure incorrectly signals that ObjectId handling is wrong.
+
+### Forbidden
+
+- Hand-inserted rows with fake string `_id`s that fight natural ObjectIds
+- `as never` / cast hacks instead of correct runtime types
+- Dual-path “try string then ObjectId” filters to paper over lazy fixtures
+- Any setup that only works if the learner mirrors the test author’s storage quirk
+- Asking the learner to change a working API to accommodate a broken fixture
+
+### Required
+
+- Create state through the **public API** whenever possible (`/next`, then mutate)
+- When mutating, filter on **stable domain fields** (`question_id` + `consumed_at: null`), not `_id` representation
+- Assert `matchedCount` / setup succeeded when a test depends on a DB mutation
+- If a fixture needs a special id type, the **challenge seed/contract** must use that type everywhere — never a one-off in one test
+
+**If you are tempted to cast `_id` to make a test green: stop and fix the fixture.**
+
+## Hard rule — fixture intent must be documented (2026-08-08)
+
+**Failure mode:** learner’s product behavior works in the real app (e.g. auto-submit after ~15s). UI test uses a shortcut (already-expired `deadline_at`, fake clock edge) that only passes if they reverse-engineer the mock. That confuses signal: a correct local timer fails for reasons that are not obvious from the README.
+
+### Forbidden
+
+- Shipping a time/deadline test whose intent is only discoverable by reading the mock
+- Defending fixture design in coach chat before checking learner wiring (missing props, wrong URL, non-200 append)
+- Keeping a “late click” contract after the product rule is “timer auto-submits null”
+
+### Required
+
+- README **above the fold**: name the SoT field and the edge (`deadline_at` already past → auto-POST null, no click)
+- Prefer fixtures that match how a senior would explain the product in a design review
+- Fast tests are fine (expired deadline, fake timers) **only if** the README already stated that exact behavior
+- When a fixture is disputed: state the product reason briefly, then check wiring before arguing design
+
+**Ship criterion:** opaque fixtures are a contract-clarity defect, same class as a wrong assertion.

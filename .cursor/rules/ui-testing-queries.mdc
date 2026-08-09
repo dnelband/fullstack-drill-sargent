@@ -30,6 +30,8 @@ screen.getByLabelText("Status filter");
 - Prefer stable accessible names in task copy so exercise UIs need not copy solution markup.
 - Task titles must name exactly what the test asserts — one behavior per task.
 - **Basic before conflict:** for the same control, add happy-path before 409 / race / stale-response tests.
-- **Form save is product:** if the UI has Edit → draft fields → Save, include a test that asserts the PATCH/PUT **request body** uses draft values **and** the UI reflects notes/status/version after success. A 409-only save test is not enough (false green).
+- **Form on Edit (locked):** Expand → read-only details + Edit. The form appears **only after Edit** — never on Expand alone.
+- **One edit form:** after Edit, one form holds the fields + Save (+ Publish if in scope). Do not put mutation controls on the read-only expand panel outside that form.
+- **Form save is product:** assert the PATCH/PUT **request body** uses draft values **and** the UI reflects them after success. A 409-only save test is not enough (false green).
 - Do not add `data-testid` for ordinary buttons/inputs/selects that already have roles.
 - Use `data-testid` for non-interactive display fields when free-text matching would couple to copy.

@@ -14,21 +14,99 @@ When the learner finishes a challenge (or asks for a review):
 
 ## 2. Write the review
 
-Create `.local/reviews/YYYY-MM-DD-<slug>.md` with:
+Create `.local/reviews/YYYY-MM-DD-<slug>.md` using the **structured feedback** template below.
 
-- Outcome + self-reported time
-- Difficulty context (intrinsic / 45m / take-home)
-- What landed
-- Gaps tests did not catch (general vs `byStack.<stack>`)
-- Progress vs prior challenges
-- Coverage notes (false greens → new tests)
+### Score model (required)
 
+| Field | Scale | Meaning |
+|-------|-------|---------|
+| `overall` | `0–10` | **Headline total** — weighted senior judgment for this slice (not a vanity average) |
+| `hireSignal` | enum | `strong_yes` \| `lean_yes` \| `mixed` \| `lean_no` \| `no` — **this challenge only** |
+| `tests` | `passed/total` | Objective contract |
+| `domainApi` | `0–10` | Routes, shapes, filters, grading, Mongo/SQL correctness |
+| `clientState` | `0–10` | SoT append, draft→body, timer/deadline, list/detail sync |
+| `concurrency` | `0–10` | Atomic writes, submit-once, no check-then-act races |
+
+**Anchors for `/10` axes**
+
+- **9–10:** Would defend in a senior debrief with minor nits
+- **7–8:** Solid hire-leaning; real gaps but product spine holds
+- **5–6:** Mixed; green tests may hide a product or race hole
+- **≤4:** Would not pass a careful senior review on that axis
+
+**`overall` guidance:** start from the weakest *product-critical* axis (e.g. clientState 4 with draft→PATCH broken caps overall ~6 even if API is 9). Tests green does not floor overall at 8.
+
+**`hireSignal`:** independent of “felt hard.” A green suite with a critical false-green product bug → at best `mixed`.
+
+### Review markdown template
+
+```markdown
+# Review: <slug> — YYYY-MM-DD
+
+Stack: `<stack>`
+Submission: `submissions/<slug>/YYYY-MM-DD`
+Elapsed (self-report): <time or unknown>
+
+## Feedback summary
+
+**Overall: x.x / 10**  
+Hire signal (this slice): **lean_yes**  
+Difficulty: intrinsic **…** · ~45m live **…** · take-home **…**
+
+**One-liner:** <one sentence: what this solve proves>
+
+| Field | Score |
+|-------|-------|
+| Tests | **N / N** |
+| Domain / API | **x / 10** |
+| Client state / SoT | **x / 10** |
+| Concurrency / races | **x / 10** |
+| Overall judgment | **x / 10** (same as headline) |
+| Hire signal (this slice) | **lean_yes** |
+
+**Why overall:** <2–4 sentences tied to the axes — cite the main dock and the main credit>
+
+### Keep doing
+- <≤3 strengths evidenced in this solve>
+
+### Fix next
+- <≤3 gaps, highest severity first; note if tests missed them>
+
+### Progress
+- <vs prior challenge(s): what improved / regressed>
+
+## Difficulty context
+
+- Intrinsic: …
+- ~45m live: …
+- Take-home: …
+- vs market senior live: …
+
+## What landed
+- …
+
+## Gaps tests did not catch
+
+### General
+- …
+
+### byStack.<stack>
+- …
+
+## Coverage notes
+- <false greens → new tests, or intentional review-only gaps>
+```
+
+Lead **Feedback summary** with `**Overall: x.x / 10**`, then hire signal, then a one-line **Difficulty** (intrinsic / ~45m / take-home), then one-liner, then the breakdown table. Keep the fuller **Difficulty context** section below for notes.
 ## 3. Update `.local/profile.json`
 
-- Append `challengeHistory`
+- Append `challengeHistory` entry including:
+  - `testsPassed`, `testsTotal`
+  - `scores: { domainApi, clientState, concurrency, overall }`
+  - `hireSignal`
 - Move fixed habits into `strengths`; keep open gaps in `weaknesses`
 - Split `general` vs `byStack.<stack>`
-- Refresh `nextPracticeHints` from this review
+- Refresh `nextPracticeHints` from **Fix next** (product gaps → prefer encode as tests; judgment gaps stay review-space)
 - Bump `updatedAt` / level estimate only with new evidence
 
 ## 4. Feed the next challenge

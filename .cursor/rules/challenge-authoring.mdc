@@ -9,7 +9,7 @@ Target band: senior. Live budget ~45m. Prefer **slightly harder than average mar
 
 ## Density calibration
 
-- Prefer the brief-desk / dispatch-board product spine (list + filters + claim + expand→edit→save + 409+latest).
+- Prefer Hardcore product spines: boards (list + filters + claim + expand→Edit→form→save + 409+latest) **or** flows like timed quiz (exclude ids + deadline serves + summary).
 - Intrinsic **Hard**; ~45m live often **Hardcore**; ~2–4h take-home **Medium/Hard**.
 - Trim surface ~10–15% only if aiming a true 45m Hard (not Hardcore).
 
@@ -24,7 +24,8 @@ Keep in tests:
 - Versioned PATCH success + stale 409 with `message` + `latest`
 - Claim refreshes list **and** summary (or equivalent aggregate)
 - **Successful save reflects draft notes/status/version** (body + UI)
-- Expand → read-only details + Edit → form (form not visible before Edit)
+- Expand → read-only details + Edit → form (form **not** visible before Edit)
+- After Edit: **one** form for fields + Save (+ Publish if in scope) — no publish UI on the read-only expand panel
 
 Leave for review (do not spoon-feed):
 
@@ -34,12 +35,21 @@ Leave for review (do not spoon-feed):
 
 ## UI contract defaults
 
-Inline expand/collapse (not a separate pane). Row hooks `{id}-*-row` + field tiles. Details: `{id}-details-view`, `{id}-details-form`, `{id}-notes`, `{id}-version`.
+**Form on Edit.** Expand shows read-only details + Edit. Form only after Edit.
+
+Row hooks `{id}-*-row` + field tiles. Read-only: `{id}-details-view`. Form: `{id}-details-form`, draft fields, Save (and Publish on that same form when in scope).
 
 ## Before shipping a challenge
 
-1. `pnpm test:solution` green
-2. Exercise stubs compile; no spoilers in exercise
-3. Happy-path save test present **above** the 409 save test
-4. Challenge summary reporter shows **full** assertion messages (no first-line truncation)
-5. README domain fields match shared types and seed ids
+1. **Domain SoT check** (see `challenge-domain-sot.mdc`) — fail ship if the UI must invent graded/attempt rows from thin errors
+2. `pnpm test:solution` green
+3. Exercise stubs compile; no spoilers in exercise
+4. Happy-path behavior test present **above** conflict/409 tests
+5. Challenge summary reporter shows **full** assertion messages (no first-line truncation)
+6. README domain fields match shared types and seed ids
+7. Fixtures go through the public API when possible — never force unnatural `_id` types
+
+## Design notes (prior failures)
+
+- **pulse-quiz SoT failure:** exclude + timer idea was fine; spreading attempt truth across 200 grades and 409-only messages so the UI fabricates summary rows is an invalid contract. Hardcore density ≠ incoherent data flow.
+- **pulse-quiz fixture clarity (2026-08-08):** expired-`deadline_at` UI fixture is product-correct (server clock is SoT) but easy to misread as “accommodate the test” if the README does not state the edge above the fold. Front-load SoT edges; check learner wiring before defending fixtures. Contract opacity is a ship defect.

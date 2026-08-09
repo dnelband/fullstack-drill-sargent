@@ -1,0 +1,35 @@
+---
+description: Required — domain single source of truth in challenge contracts
+alwaysApply: true
+---
+
+# Domain Source of Truth
+
+**Lesson (pulse-quiz, 2026-08-07):** splitting domain facts across 200 bodies, thin 409 errors, and client invention is a broken product contract. Do not ship practice that trains that pattern.
+
+## Rule
+
+Every domain event the UI must remember (attempt, save, claim result, grade, summary row) must have **one authoritative producer**.
+
+- Prefer the **API** as SoT for graded/attempt outcomes.
+- The client may **append or mirror** complete payloads. It must **not invent** missing fields (`question_id`, `correct`, `correct_option_id`, `latest`, etc.) because an error body was thin.
+- **409/4xx are control signals** (don’t retry / conflict / gone). They are not a substitute for a domain record unless the error payload **is** that full record (e.g. `409 + latest` on dispatch-board — the `latest` object is still complete SoT).
+
+## Forbidden challenge designs
+
+- Timeout/late/skip → `409 { message }` only, UI fabricates an “incorrect” result for the summary
+- Half of fields only on 200, half guessed locally
+- Summary that cannot be rebuilt from server-returned attempt objects (or a summary endpoint)
+- Tests that **require** the learner to invent domain state to go green
+
+## Required shape for attempt-like flows
+
+Finishing an item (submit, timeout, late, skip) → **one complete result payload** (almost always `200`) with every field the summary needs. Use `409` only for “already consumed / don’t append again.”
+
+## Author check (block ship if any fail)
+
+1. Can the summary be rendered using **only** data returned by successful domain responses (or one summary GET)?
+2. If the network tab showed only API traffic, would a second client reach the same score?
+3. Would you defend this data flow in a senior design review without saying “the test made us”?
+
+If not: **rewrite the contract before writing more tests.**

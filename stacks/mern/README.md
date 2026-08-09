@@ -4,10 +4,10 @@ Vite + Express + MongoDB (native driver) + Tailwind practice workspace.
 
 ## Current challenge
 
-- `challenges/pulse-quiz/` — timed quiz (5/session from 30, exclude ids, deadline; API owns attempt SoT)
-- `.solutions/pulse-quiz/` — reference implementation
+- `challenges/slug-studio/` — draft/publish pages with unique slugs and versioned PATCH
+- `.solutions/slug-studio/` — reference implementation
 
-Also on disk (inactive): `brief-desk`.
+Also on disk (inactive): `pulse-quiz`, `brief-desk`.
 
 ## Setup
 
