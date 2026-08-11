@@ -3,8 +3,9 @@ import { getDb, closeDb } from "../server/db.ts";
 
 async function main() {
   const db = await getDb();
-  await db.collection("products").deleteMany({});
+  await db.collection("orders").deleteMany({});
   // Legacy collections from prior challenges (harmless if empty)
+  await db.collection("products").deleteMany({});
   await db.collection("users").deleteMany({});
   await db.collection("leave_balances").deleteMany({});
   await db.collection("leave_requests").deleteMany({});

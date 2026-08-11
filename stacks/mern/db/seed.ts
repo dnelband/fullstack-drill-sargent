@@ -1,22 +1,62 @@
 import "dotenv/config";
 import { getDb, closeDb } from "../server/db.ts";
-import type { ProductRecord } from "../shared/types.ts";
+import type { OrderRecord } from "../shared/types.ts";
 
-const products: ProductRecord[] = [
-  { _id: "prod1", name: "Air Runner", brand: "Nike", discount_percent: 15, stock: 12 },
-  { _id: "prod2", name: "Classic Tee", brand: "Nike", discount_percent: 5, stock: 0 },
-  { _id: "prod3", name: "Garden Hose", brand: "Gucci", discount_percent: 20, stock: 3 },
-  { _id: "prod4", name: "Logo Hoodie", brand: "Gucci", discount_percent: 0, stock: 8 },
-  { _id: "prod5", name: "Trail Boot", brand: "Adidas", discount_percent: 25, stock: 0 },
-  { _id: "prod6", name: "Court Sneaker", brand: "Adidas", discount_percent: 10, stock: 20 },
-  { _id: "prod7", name: "City Pack", brand: "North Face", discount_percent: 30, stock: 2 },
-  { _id: "prod8", name: "Daily Sock", brand: "Nike", discount_percent: 12, stock: 100 },
+const orders: OrderRecord[] = [
+  {
+    _id: "ord1",
+    customer_name: "Ava Ng",
+    status: "open",
+    total_cents: 4599,
+    created_at: "2026-08-10T14:00:00.000Z",
+    notes: "Gift wrap",
+  },
+  {
+    _id: "ord2",
+    customer_name: "Ben Ortiz",
+    status: "paid",
+    total_cents: 12900,
+    created_at: "2026-08-10T13:00:00.000Z",
+    notes: "Express shipping",
+  },
+  {
+    _id: "ord3",
+    customer_name: "Cara Quinn",
+    status: "shipped",
+    total_cents: 7800,
+    created_at: "2026-08-10T12:00:00.000Z",
+    notes: "Left at door",
+  },
+  {
+    _id: "ord4",
+    customer_name: "Devon Ruiz",
+    status: "cancelled",
+    total_cents: 2200,
+    created_at: "2026-08-10T11:00:00.000Z",
+    notes: "Customer request",
+  },
+  {
+    _id: "ord5",
+    customer_name: "Elena Park",
+    status: "paid",
+    total_cents: 5600,
+    created_at: "2026-08-10T10:00:00.000Z",
+    notes: "",
+  },
+  {
+    _id: "ord6",
+    customer_name: "Finn Blake",
+    status: "open",
+    total_cents: 9900,
+    created_at: "2026-08-10T09:00:00.000Z",
+    notes: "Call before delivery",
+  },
 ];
 
 async function main() {
   const db = await getDb();
-  await db.collection<ProductRecord>("products").insertMany(products);
-  console.log(`[db] seeded ${products.length} products`);
+  await db.collection<OrderRecord>("orders").insertMany(orders);
+  console.log(`[db] seeded ${orders.length} orders`);
 }
 
 main()

@@ -4,10 +4,10 @@ Vite + Express + MongoDB (native driver) + Tailwind practice workspace.
 
 ## Current challenge
 
-- `challenges/product-filter/` — stackable product filters (live ~60m)
-- `.solutions/product-filter/` — reference implementation
+- `challenges/orders-inbox/` — orders list, status filter, summary (live ~60m)
+- `.solutions/orders-inbox/` — reference implementation
 
-Also on disk (inactive): `leave-desk`, `slug-studio`, `pulse-quiz`, `brief-desk`.
+Also on disk (inactive): `product-filter`, `leave-desk`, `slug-studio`, `pulse-quiz`, `brief-desk`.
 
 ## Setup
 

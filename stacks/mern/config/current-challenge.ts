@@ -1,6 +1,6 @@
 export const currentChallenge = {
-  slug: "product-filter",
-  title: "Product Filter Desk",
+  slug: "orders-inbox",
+  title: "Orders Inbox",
 } as const;
 
 export type ChallengeSlug = typeof currentChallenge.slug;

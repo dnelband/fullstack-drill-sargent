@@ -5,10 +5,10 @@ export async function loadChallengeServerModule(): Promise<ChallengeServerModule
   const variant = resolveVariant(process.env.CHALLENGE_VARIANT);
 
   switch (currentChallenge.slug) {
-    case "product-filter":
+    case "orders-inbox":
       return variant === "reference"
-        ? (await import("../.solutions/product-filter/server/index.ts")).default
-        : (await import("../challenges/product-filter/exercise/server/index.ts")).default;
+        ? (await import("../.solutions/orders-inbox/server/index.ts")).default
+        : (await import("../challenges/orders-inbox/exercise/server/index.ts")).default;
     default:
       throw new Error(`Unsupported challenge slug: ${currentChallenge.slug satisfies never}`);
   }
