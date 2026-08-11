@@ -14,28 +14,146 @@ function color(code: string, text: string) {
   if (process.env.NO_COLOR || process.stdout.isTTY === false) {
     return text;
   }
-
   return `${code}${text}${ansi.reset}`;
 }
 
-function fullError(error: unknown): string {
-  if (!error) {
+/**
+ * Vitest often serializes objects as: Object {\n  "a": 1,\n}
+ * or as a JSON-encoded version of that string. Always prefer real JSON.
+ * NEVER truncate.
+ */
+function parseVitestObjectDump(raw: string): unknown | undefined {
+  let text = raw.trim();
+
+  // JSON-encoded string wrapper: "\"Object {\\n ... }\""
+  if (text.startsWith('"') && text.includes("Object {")) {
+    try {
+      const once = JSON.parse(text);
+      if (typeof once === "string") {
+        text = once.trim();
+      }
+    } catch {
+      // keep text
+    }
+  }
+
+  if (text.startsWith("Object {") && text.endsWith("}")) {
+    const asJson = text.replace(/^Object\s*/, "").replace(/,(\s*[}\]])/g, "$1");
+    try {
+      return JSON.parse(asJson);
+    } catch {
+      return undefined;
+    }
+  }
+
+  if (
+    (text.startsWith("{") && text.endsWith("}")) ||
+    (text.startsWith("[") && text.endsWith("]"))
+  ) {
+    try {
+      return JSON.parse(text);
+    } catch {
+      return undefined;
+    }
+  }
+
+  return undefined;
+}
+
+function formatValue(value: unknown): string {
+  if (typeof value === "string") {
+    const parsed = parseVitestObjectDump(value);
+    if (parsed !== undefined) {
+      return JSON.stringify(parsed, null, 2);
+    }
+    // Already a multi-line dump from JsonAssertError — print as-is
+    if (value.includes("\n") || value.startsWith("{") || value.startsWith("[")) {
+      return value;
+    }
+    return value;
+  }
+  try {
+    return JSON.stringify(value, null, 2) ?? String(value);
+  } catch {
+    return String(value);
+  }
+}
+
+function formatFailure(error: unknown): string {
+  if (error == null) {
     return "unknown error";
   }
 
-  if (typeof error === "string") {
-    return error.trim();
+  if (typeof error !== "object") {
+    return String(error);
   }
 
-  if (error instanceof Error) {
-    return error.message.trim();
+  const err = error as {
+    name?: string;
+    message?: unknown;
+    actual?: unknown;
+    expected?: unknown;
+    extra?: Record<string, unknown>;
+    jsonActual?: unknown;
+    jsonExpected?: unknown;
+    jsonExtra?: Record<string, unknown>;
+  };
+
+  const message = String(err.message ?? "");
+
+  // expect-json JsonAssertError — message is already the full dump.
+  if (
+    err.name === "JsonAssertError" ||
+    message.includes("DIFF=") ||
+    (message.includes("actual=") && message.includes("expected="))
+  ) {
+    return message;
   }
 
-  if (typeof error === "object" && error !== null && "message" in error) {
-    return String((error as { message: unknown }).message).trim();
+  const blocks: string[] = [];
+  const extra = err.jsonExtra ?? err.extra;
+  if (extra && typeof extra === "object") {
+    for (const [key, value] of Object.entries(extra)) {
+      blocks.push(`${key}=${formatValue(value)}`);
+    }
   }
 
-  return "unknown error";
+  if ("jsonActual" in err) {
+    blocks.push(`actual=${formatValue(err.jsonActual)}`);
+  } else if ("actual" in err) {
+    blocks.push(`actual=${formatValue(err.actual)}`);
+  }
+  if ("jsonExpected" in err) {
+    blocks.push(`expected=${formatValue(err.jsonExpected)}`);
+  } else if ("expected" in err) {
+    blocks.push(`expected=${formatValue(err.expected)}`);
+  }
+
+  if (blocks.length > 0) {
+    return blocks.join("\n");
+  }
+
+  if (message) {
+    const statusMatch = message.match(
+      /expected (\d+)(?:\s+"[^"]*")?, got (\d+)(?:\s+"[^"]*")?/i,
+    );
+    if (statusMatch) {
+      return `actual=${statusMatch[2]}\nexpected=${statusMatch[1]}`;
+    }
+    // Last resort: try to unmangle Vitest Object dumps inside the message
+    const unmangled = message.replace(
+      /Object \{[\s\S]*?\n\}/g,
+      (chunk) => {
+        const parsed = parseVitestObjectDump(chunk);
+        return parsed === undefined
+          ? chunk
+          : JSON.stringify(parsed, null, 2);
+      },
+    );
+    return unmangled;
+  }
+
+  return formatValue(error);
 }
 
 type ResultEntry =
@@ -64,11 +182,11 @@ export default class ChallengeSummaryReporter implements Reporter {
 
     if (state === "failed") {
       const errors = testCase.result()?.errors ?? [];
-      this.results.set(title, {
-        state: "failed",
-        title,
-        detail: fullError(errors[0]),
-      });
+      const detail =
+        errors.length === 0
+          ? "unknown error"
+          : errors.map((error) => formatFailure(error)).join("\n\n");
+      this.results.set(title, { state: "failed", title, detail });
     }
   }
 

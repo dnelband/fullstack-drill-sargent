@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "challenge": "tsx scripts/select-challenge.ts",
     "dev:server": "tsx watch --clear-screen=false server/index.ts",
     "dev:client": "vite --config vite.config.ts",
     "dev": "concurrently -n server,client -c blue,magenta \"pnpm dev:server\" \"pnpm dev:client\"",

@@ -2,23 +2,26 @@
 
 Vite + Express + MongoDB (native driver) + Tailwind practice workspace.
 
-## Current challenge
-
-- `challenges/orders-inbox/` — orders list, status filter, summary (live ~60m)
-- `.solutions/orders-inbox/` — reference implementation
-
-Also on disk (inactive): `product-filter`, `leave-desk`, `slug-studio`, `pulse-quiz`, `brief-desk`.
-
-## Setup
+## Setup (fresh clone)
 
 ```bash
 cp .env.example .env
 pnpm install
-pnpm db:prepare
+pnpm challenge              # pick the exercise
+pnpm challenge --prepare    # reset + seed for the active challenge
 pnpm dev
 ```
 
-App: client `http://localhost:4174`, API `http://localhost:4020`.
+## Current challenge
+
+Active slug: `config/active-challenge.json` (catalog: `config/challenges.ts`).
+
+```bash
+pnpm challenge --list
+pnpm challenge coupon-redeem --prepare
+```
+
+Solve under `challenges/<slug>/exercise/`. References in `.solutions/<slug>/`.
 
 ## Tests
 
@@ -31,5 +34,6 @@ pnpm test:challenge:watch
 ## Notes
 
 - No Mongoose — official `mongodb` package
-- Solve only under `challenges/<slug>/exercise/`
+- Per-challenge types: `challenges/<slug>/exercise/types.ts`
+- Per-challenge seed: `challenges/<slug>/db/seed.ts`
 - Do not edit `.solutions/` while practicing

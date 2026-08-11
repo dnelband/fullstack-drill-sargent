@@ -1,19 +1,29 @@
 import "dotenv/config";
-import { getDb, closeDb } from "../server/db.ts";
+import { closeDb, getDb } from "../server/db.ts";
+
+/** Clears every challenge collection so switching challenges never leaves stale docs. */
+const COLLECTIONS = [
+  "members",
+  "tickets",
+  "briefs",
+  "orders",
+  "products",
+  "users",
+  "leave_balances",
+  "leave_requests",
+  "pages",
+  "questions",
+  "serves",
+  "coupons",
+  "redemptions",
+  "idempotency_keys",
+] as const;
 
 async function main() {
   const db = await getDb();
-  await db.collection("orders").deleteMany({});
-  // Legacy collections from prior challenges (harmless if empty)
-  await db.collection("products").deleteMany({});
-  await db.collection("users").deleteMany({});
-  await db.collection("leave_balances").deleteMany({});
-  await db.collection("leave_requests").deleteMany({});
-  await db.collection("pages").deleteMany({});
-  await db.collection("questions").deleteMany({});
-  await db.collection("serves").deleteMany({});
-  await db.collection("members").deleteMany({});
-  await db.collection("briefs").deleteMany({});
+  for (const name of COLLECTIONS) {
+    await db.collection(name).deleteMany({});
+  }
 }
 
 main()

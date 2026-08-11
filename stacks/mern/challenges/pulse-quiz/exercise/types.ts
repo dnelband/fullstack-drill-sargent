@@ -1,0 +1,44 @@
+export type QuizCategory = "javascript" | "react" | "mongodb";
+
+export interface QuizOption {
+  _id: string;
+  label: string;
+}
+
+export interface QuizQuestionPublic {
+  _id: string;
+  prompt: string;
+  category: QuizCategory;
+  options: QuizOption[];
+}
+
+export interface QuizConfig {
+  questions_per_session: number;
+  time_limit_seconds: number;
+}
+
+export interface NextQuestionResponse {
+  serve_id: string;
+  deadline_at: string;
+  remaining: number;
+  question: QuizQuestionPublic;
+}
+
+export interface SubmitAnswerInput {
+  serve_id: string;
+  option_id: string | null;
+}
+
+/** Complete attempt record — the only thing the UI appends to build the summary. */
+export interface AttemptResult {
+  question_id: string;
+  prompt: string;
+  option_id: string | null;
+  correct: boolean;
+  correct_option_id: string;
+}
+
+export type SubmitAnswerResponse = AttemptResult;
+
+/** @deprecated Use AttemptResult */
+export type QuizResultItem = AttemptResult;

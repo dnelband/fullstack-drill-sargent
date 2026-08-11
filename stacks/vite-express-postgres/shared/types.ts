@@ -1,53 +1,22 @@
-export type CallbackStatus = "open" | "claimed" | "completed";
+/**
+ * Stack barrel: re-exports every challenge exercise's domain types.
+ * Prefer importing from this file in tests/seed/solutions.
+ * Learners may also import from their local `exercise/types.ts`.
+ */
 
-export interface Agent {
-  id: string;
-  display_name: string;
-  team: string;
-}
+export * from "../challenges/dispatch-board/exercise/types.ts";
 
-export interface CallbackRecord {
-  id: number;
-  customer_name: string;
-  topic: string;
-  priority: "high" | "medium" | "low";
-  status: CallbackStatus;
-  assigned_agent_id: string | null;
-  assigned_agent_name: string | null;
-  scheduled_for: string;
-  notes: string;
-  version: number;
-  updated_at: string;
-}
+// Additional challenge type modules are re-exported as they are ported:
+export * from "../challenges/brief-desk/exercise/types.ts";
+export * from "../challenges/pulse-quiz/exercise/types.ts";
+export * from "../challenges/slug-studio/exercise/types.ts";
+export * from "../challenges/leave-desk/exercise/types.ts";
+export * from "../challenges/product-filter/exercise/types.ts";
+export * from "../challenges/orders-inbox/exercise/types.ts";
+export * from "../challenges/ticket-claim/exercise/types.ts";
+export * from "../challenges/coupon-redeem/exercise/types.ts";
 
-export type CallbackUpdateFields = Pick<
-  CallbackRecord,
-  "id" | "notes" | "status" | "version"
->;
+export { CURRENT_USER_ID } from "./coupon-redeem.ts";
 
-export interface CallbackSummary {
-  open: number;
-  claimed: number;
-  completed: number;
-}
-
-export interface CallbackFilters {
-  status?: CallbackStatus | "all";
-  assigned_agent_id?: string | "all";
-  search?: string;
-}
-
-export interface ClaimCallbackInput {
-  agent_id: string;
-}
-
-export interface UpdateCallbackInput {
-  expected_version: number;
-  status: CallbackStatus;
-  notes: string;
-}
-
-export interface ChallengeTask {
-  id: string;
-  title: string;
-}
+/** Default API origin for exercise UIs that don't read VITE_API_BASE_URL. */
+export const BASE_URL = "http://localhost:4010";

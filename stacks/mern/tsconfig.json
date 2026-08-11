@@ -25,6 +25,7 @@
     "shared",
     "config",
     "db",
+    "scripts",
     "tests",
     "challenges",
     ".solutions"

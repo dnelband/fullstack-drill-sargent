@@ -1,62 +1,36 @@
 import "dotenv/config";
-import { getDb, closeDb } from "../server/db.ts";
-import type { OrderRecord } from "../shared/types.ts";
+import { currentChallenge } from "../config/current-challenge.ts";
+import { closeDb, getDb } from "../server/db.ts";
+import type { Db } from "mongodb";
 
-const orders: OrderRecord[] = [
-  {
-    _id: "ord1",
-    customer_name: "Ava Ng",
-    status: "open",
-    total_cents: 4599,
-    created_at: "2026-08-10T14:00:00.000Z",
-    notes: "Gift wrap",
-  },
-  {
-    _id: "ord2",
-    customer_name: "Ben Ortiz",
-    status: "paid",
-    total_cents: 12900,
-    created_at: "2026-08-10T13:00:00.000Z",
-    notes: "Express shipping",
-  },
-  {
-    _id: "ord3",
-    customer_name: "Cara Quinn",
-    status: "shipped",
-    total_cents: 7800,
-    created_at: "2026-08-10T12:00:00.000Z",
-    notes: "Left at door",
-  },
-  {
-    _id: "ord4",
-    customer_name: "Devon Ruiz",
-    status: "cancelled",
-    total_cents: 2200,
-    created_at: "2026-08-10T11:00:00.000Z",
-    notes: "Customer request",
-  },
-  {
-    _id: "ord5",
-    customer_name: "Elena Park",
-    status: "paid",
-    total_cents: 5600,
-    created_at: "2026-08-10T10:00:00.000Z",
-    notes: "",
-  },
-  {
-    _id: "ord6",
-    customer_name: "Finn Blake",
-    status: "open",
-    total_cents: 9900,
-    created_at: "2026-08-10T09:00:00.000Z",
-    notes: "Call before delivery",
-  },
-];
+async function loadSeed(slug: typeof currentChallenge.slug): Promise<(db: Db) => Promise<void>> {
+  switch (slug) {
+    case "brief-desk":
+      return (await import("../challenges/brief-desk/db/seed.ts")).seedChallenge;
+    case "pulse-quiz":
+      return (await import("../challenges/pulse-quiz/db/seed.ts")).seedChallenge;
+    case "slug-studio":
+      return (await import("../challenges/slug-studio/db/seed.ts")).seedChallenge;
+    case "leave-desk":
+      return (await import("../challenges/leave-desk/db/seed.ts")).seedChallenge;
+    case "product-filter":
+      return (await import("../challenges/product-filter/db/seed.ts")).seedChallenge;
+    case "orders-inbox":
+      return (await import("../challenges/orders-inbox/db/seed.ts")).seedChallenge;
+    case "ticket-claim":
+      return (await import("../challenges/ticket-claim/db/seed.ts")).seedChallenge;
+    case "coupon-redeem":
+      return (await import("../challenges/coupon-redeem/db/seed.ts")).seedChallenge;
+    default:
+      throw new Error(`No seed for challenge: ${slug satisfies never}`);
+  }
+}
 
 async function main() {
   const db = await getDb();
-  await db.collection<OrderRecord>("orders").insertMany(orders);
-  console.log(`[db] seeded ${orders.length} orders`);
+  const seed = await loadSeed(currentChallenge.slug);
+  console.log(`[db] seeding ${currentChallenge.slug} → ${currentChallenge.mongoDb}`);
+  await seed(db);
 }
 
 main()

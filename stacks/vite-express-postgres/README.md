@@ -1,46 +1,46 @@
 # Vite + Express + Postgres Challenges
 
-This stack is an isolated practice workspace for realistic fullstack interview challenges.
+Isolated practice workspace for fullstack interview challenges on Postgres.
 
 ## Structure
 
 - `client/`: Vite + React + Tailwind app shell
 - `server/`: Express app shell and challenge loader
-- `db/`: plain Postgres reset and seed scripts
-- `challenges/dispatch-board/exercise/`: the only implementation path you work in during practice (server + UI + client `fetch`)
-- `.solutions/dispatch-board/`: validated hidden reference implementation
-- `tests/`: task-oriented challenge coverage (UI tests mock the network, not an injected API)
+- `db/`: reset + seed router (per-challenge seeds live under `challenges/<slug>/db/`)
+- `challenges/<slug>/exercise/`: implementation path for practice
+- `.solutions/<slug>/`: hidden reference implementations
+- `tests/`: API + UI coverage (UI mocks `fetch`, not an injected API)
 
 ## Setup
 
-1. Copy `.env.example` to `.env`.
-2. Point `DATABASE_URL` at your local Postgres database.
-3. Run `pnpm install`.
-4. Run `pnpm db:prepare`.
+1. Copy `.env.example` to `.env` and point `DATABASE_URL` at local Postgres.
+2. `pnpm install`
+3. Pick a challenge and prepare DB:
+   ```bash
+   pnpm challenge <slug> --prepare
+   ```
 
 ## Scripts
 
-- `pnpm dev:server`: start the Express API
-- `pnpm dev:client`: start the Vite client
-- `pnpm dev`: start both processes together
-- `pnpm db:prepare`: reset and reseed the database
-- `pnpm test:challenge`: run the exercise tests once
-- `pnpm test:challenge:watch`: run the exercise tests in watch mode
-- `pnpm test:solution`: run the same tests against the hidden reference solution
-- `pnpm build`: type-check and build the client
+- `pnpm challenge` / `pnpm challenge <slug>` / `pnpm challenge --list`
+- `pnpm challenge <slug> --prepare` — select + `db:prepare`
+- `pnpm dev` — API (`4010`) + Vite client
+- `pnpm test:challenge` / `pnpm test:challenge:watch`
+- `pnpm test:solution` — same suite against `.solutions/`
+- `pnpm build`
 
-## Recommended Terminal Layout
+## Challenges
 
-- Terminal 1: `pnpm dev`
-- Terminal 2: `pnpm test:challenge:watch`
+| Slug | Title |
+|------|-------|
+| `dispatch-board` | Dispatch Board |
+| `orders-inbox` | Orders Inbox |
+| `product-filter` | Product Filter Desk |
+| `ticket-claim` | Ticket Claim Desk |
+| `coupon-redeem` | Coupon Redeem Desk |
+| `brief-desk` | Brief Desk |
+| `slug-studio` | Slug Studio |
+| `pulse-quiz` | Pulse Quiz |
+| `leave-desk` | Leave Desk |
 
-This keeps the app logs in one place and the failing task loop in another.
-
-## How the Hidden Solution Works
-
-The stack has a current challenge loader. It selects either:
-
-- `exercise`: the intentionally incomplete implementation
-- `reference`: the validated implementation in `.solutions/`
-
-Challenge tests default to the exercise version. The `test:solution` script flips the loader to the hidden reference implementation so the same task suite can prove the challenge is solvable.
+JSON uses SQL-native **`id`** (not Mongo `_id`). Domain types live in `challenges/<slug>/exercise/types.ts` and are re-exported from `shared/types.ts`.

@@ -1,11 +1,39 @@
 ---
-description: Challenge Vitest DX — full diffs; no fixtures that invalidate a correct implementation
+description: Challenge Vitest DX — NEVER truncate failure logs; full actual vs expected
 alwaysApply: true
 ---
 
 # Challenge Test DX
 
-Learners debug from the challenge summary reporter. Truncated objects waste sessions.
+## HARD RULE — NEVER TRUNCATE FAILURE OUTPUT
+
+**Non-negotiable. Do not argue. Do not “simplify.” Do not summarize away detail.**
+
+When a challenge test fails, the learner must see **complete** `actual` and `expected` payloads (full JSON, every field, every line).
+
+### Forbidden
+
+- Chai / Vitest truncated diffs (“N matching properties omitted”, ellipsis, first-line-only)
+- Reporter that prints only `message.split("\n")[0]`
+- Truncating, slicing, or abbreviating assertion dumps “for readability”
+- Debating whether full dumps are too noisy — **always full**
+
+### Required
+
+- `chaiConfig: { truncateThreshold: 0 }`
+- Challenge summary reporter prints full failure detail
+- Mutation / object asserts use `tests/expect-json.ts` (`expectJsonMatch` / `expectJsonEqual`)
+- **`actual` must be the entire object** (full body / full entity) — never a picked `{ remaining }` subset
+- On failure print the entire dump including any `extra` context objects in full:
+
+```
+redeemResponse={ ...entire... }
+fullList={ ...entire... }
+actual={ ...entire object... }
+expected={ ...entire expected... }
+```
+
+---
 
 ## Reporter + Vitest
 
@@ -17,21 +45,7 @@ silent: true,
 chaiConfig: { truncateThreshold: 0 },
 ```
 
-The summary reporter must print the **full** error message (all lines), not `message.split("\n")[0]`.
-
-## Mutation assertions
-
-For claim/PATCH success tests, prefer an explicit expected object and put full JSON in the assertion message:
-
-```ts
-const expected = { /* contract fields */ };
-expect(
-  response.body,
-  `actual=${JSON.stringify(response.body, null, 2)}\nexpected=${JSON.stringify(expected, null, 2)}`,
-).toMatchObject(expected);
-```
-
-`toMatchObject` is a **subset** match (extra fields OK). Failures mean a listed field is missing or wrong — not deep equality of the whole body.
+## Status assertions
 
 For failure contracts, assert **`response.status`** (or UI branch on status) as the primary signal — not message-string matching. See `challenge-http-status.mdc`.
 

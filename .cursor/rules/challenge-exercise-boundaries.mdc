@@ -11,7 +11,9 @@ Do not ship ready-made `fetch` helpers, API client modules, or injectable fake-A
 
 **In scope** (`challenges/<slug>/exercise/`): server routes + data access, React UI/state, `fetch` (params, bodies, status, conflict payloads).
 
-**Scaffolding only:** app shell, shared types/task titles, DB reset/seed, challenge tests.
+**Scaffolding only:** app shell, per-challenge `exercise/types.ts`, shared task titles, DB reset/seed, challenge tests.
+
+**Types:** each challenge owns `challenges/<slug>/exercise/types.ts`. `shared/types.ts` re-exports all of them (plus stack constants like `BASE_URL`). Do not invent domain shapes in a monolithic shared file — add the challenge types module and wire the barrel.
 
 ## UI tests mock the network
 

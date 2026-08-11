@@ -3,11 +3,11 @@
 // Apply latest on 409. Overlap returns conflicting_request. CURRENT_USER_ID = "u1".
 
 import {
-  CURRENT_USER_ID,
   LeaveBalance,
   LeaveRequest,
   LeaveUser,
 } from "@shared/types";
+import { CURRENT_USER_ID } from "@shared/leave-desk";
 import { useEffect, useState } from "react";
 import { BASE_URL } from "../../../../shared/types";
 import { LeaveRequestItem } from "./LeaveRequestItem";

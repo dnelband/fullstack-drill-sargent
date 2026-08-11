@@ -35,7 +35,8 @@ Choose the **most appropriate** HTTP status per failure mode. Reuse a code only 
 
 - Tests assert **status code** as the primary contract (message optional / secondary)
 - README Architecture / SoT table lists **outcome → status → body** above the fold
-- UI branches on status (apply `latest` on 412/422 when present; show conflict UI on 409)
-- Bodies may include complete SoT (`latest`, `conflicting_request`); they must not be the only way to tell failure modes apart
+- UI branches on **status** (show conflict UI on 409; stale/precondition UI on 412; etc.)
+- After 409/412 **and** after successful list mutations, **refetch** list/summary from GET — do **not** require merging `latest` or the mutation body into list state (see `challenge-domain-sot.mdc`)
+- Bodies may include `latest` / `conflicting_request` for API completeness; they must not be the only way to tell failure modes apart, and must not be the required path to update the list
 
 See also: `challenge-domain-sot.mdc` (payload completeness) and `challenge-authoring.mdc` (ship checklist).

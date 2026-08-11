@@ -1,28 +1,39 @@
 import "dotenv/config";
-import { Pool } from "pg";
+import { pool, closePool } from "../server/db.ts";
 
-const connectionString = process.env.DATABASE_URL;
-
-if (!connectionString) {
-  throw new Error("DATABASE_URL is required.");
-}
-
-const pool = new Pool({ connectionString });
+/** Drop every challenge table so switching challenges never leaves stale schema. */
+const DROP_SQL = `
+  DROP TABLE IF EXISTS
+    callbacks,
+    agents,
+    briefs,
+    members,
+    questions,
+    serves,
+    pages,
+    users,
+    leave_balances,
+    leave_requests,
+    products,
+    orders,
+    tickets,
+    coupons,
+    redemptions,
+    idempotency_keys
+  CASCADE;
+`;
 
 async function main() {
-  await pool.query(`
-    DROP TABLE IF EXISTS callbacks;
-    DROP TABLE IF EXISTS agents;
-  `);
+  await pool.query(DROP_SQL);
 }
 
 main()
   .then(async () => {
-    await pool.end();
+    await closePool();
     console.log("[db] reset complete");
   })
   .catch(async (error: unknown) => {
     console.error("[db] reset failed", error);
-    await pool.end();
+    await closePool();
     process.exitCode = 1;
   });

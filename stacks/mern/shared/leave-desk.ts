@@ -4,6 +4,9 @@ export interface LeaveDeskChallengeModule {
   ChallengeApp: ComponentType;
 }
 
+/** Acting user for leave UI — do not invent another id. */
+export const CURRENT_USER_ID = "u1";
+
 /** Inclusive calendar days between YYYY-MM-DD dates (UTC date parts). */
 export function inclusiveLeaveDays(startDate: string, endDate: string): number {
   const start = Date.parse(`${startDate}T00:00:00.000Z`);

@@ -21,7 +21,9 @@ Keep in tests:
 
 - Documented API filters/order/defaults
 - Claim success + second claim **409** + concurrent claim winner
-- Versioned PATCH success + stale **412** with `latest` (not 409 — see `challenge-http-status.mdc`)
+- Versioned PATCH success + stale **412** (distinct from 409 — see `challenge-http-status.mdc`)
+- On **409/412**, UI shows the conflict signal and **refetches** list/resource from GET — never require merging `latest` into list state (see `challenge-domain-sot.mdc`)
+- After claim/save on a **list** board (success or failure), **refetch list + summary** from GET — never require upserting the mutation body into local list state (other rows may have changed)
 - Claim refreshes list **and** summary (or equivalent aggregate)
 - **Successful save reflects draft notes/status/version** (body + UI)
 - Expand → read-only details + Edit → form (form **not** visible before Edit)
@@ -49,6 +51,7 @@ Row hooks `{id}-*-row` + field tiles. Read-only: `{id}-details-view`. Form: `{id
 6. Challenge summary reporter shows **full** assertion messages (no first-line truncation)
 7. README domain fields match shared types and seed ids
 8. Fixtures go through the public API when possible — never force unnatural `_id` types
+9. **Learner README is a product contract only** — outcomes, statuses, fields, hooks. Do **not** paste authoring lectures or anti-patterns (“don’t upsert”, “other rows may have changed”, …) into the exercise README. Those notes stay in `.cursor/rules` and tests.
 
 ## Design notes (prior failures)
 

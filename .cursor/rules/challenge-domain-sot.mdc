@@ -12,8 +12,10 @@ alwaysApply: true
 Every domain event the UI must remember (attempt, save, claim result, grade, summary row) must have **one authoritative producer**.
 
 - Prefer the **API** as SoT for graded/attempt outcomes.
-- The client may **append or mirror** complete payloads. It must **not invent** missing fields (`question_id`, `correct`, `correct_option_id`, `latest`, etc.) because an error body was thin.
-- **4xx statuses are control signals** (don’t retry / conflict / stale / unprocessable / gone). Pick **distinct** codes per failure mode — do not overload 409 and discriminate via `message` (see `challenge-http-status.mdc`). Error bodies are not a substitute for a domain record unless the payload **is** that full record (e.g. `412 + latest` on a versioned board — the `latest` object is still complete SoT).
+- The client may **append or mirror** complete payloads **only when that payload is the full collection the screen is showing** (e.g. replacing the list from `GET`, or appending one attempt row that the summary is built from). It must **not invent** missing fields because an error body was thin.
+- **4xx statuses are control signals** (don’t retry / conflict / stale / unprocessable / gone). Pick **distinct** codes per failure mode — do not overload 409 and discriminate via `message` (see `challenge-http-status.mdc`).
+- **List screens:** the server list (`GET`) is SoT for every row on screen. After a mutation that can race with other writers (claim, assign, status change, etc.) — success **or** failure — **refetch the list** (and any summary). Do **not** upsert a single mutation/`latest` body into local list state: other rows may have changed while that request was in flight.
+- API may still return the mutated entity / `latest` for logging or a detail panel; tests must **not** require merging that into the list.
 
 ## Forbidden challenge designs
 
@@ -21,6 +23,7 @@ Every domain event the UI must remember (attempt, save, claim result, grade, sum
 - Half of fields only on 200, half guessed locally
 - Summary that cannot be rebuilt from server-returned attempt objects (or a summary endpoint)
 - Tests that **require** the learner to invent domain state to go green
+- Tests that **require** applying `latest` / mutation bodies into a multi-row list instead of refetching GET
 
 ## Required shape for attempt-like flows
 
