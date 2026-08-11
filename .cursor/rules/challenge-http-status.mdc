@@ -1,0 +1,41 @@
+---
+description: Required — distinct HTTP status codes as primary control signals in challenge contracts
+alwaysApply: true
+---
+
+# Challenge HTTP Status Codes
+
+**Do not overload one status (especially 409) for many failure modes.** If clients must parse `message` to learn *which* product failure occurred, the contract is fragile and trains bad architecture. Prefer **distinct, appropriate status codes**; bodies carry SoT payloads (`latest`, `conflicting_request`), not the discriminator.
+
+## Hard rule
+
+Choose the **most appropriate** HTTP status per failure mode. Reuse a code only when the product meaning is the same.
+
+### Typical map (adapt per domain; do not collapse to 409)
+
+| Status | Use when |
+|--------|----------|
+| **400** | Malformed / invalid input (Bad Request) |
+| **401** | Unauthenticated (only when auth is in scope) |
+| **403** | Authenticated but not allowed |
+| **404** | Missing resource |
+| **409** | True resource conflict with another entity/state (overlap, unique slug taken, claim already taken by peer) |
+| **412** | Optimistic concurrency precondition failed (stale `expected_version` / ETag-like) |
+| **422** | Well-formed but unprocessable in current business state (wrong status machine, insufficient balance) |
+| **410** | Permanently gone — only when that is the product meaning |
+
+## Forbidden
+
+- “Everything is `409` + different `message`”
+- Tests that assert only message text while ignoring status
+- README that lists outcomes without status codes
+- UI that string-matches messages to choose conflict vs stale vs validation behavior
+
+## Required
+
+- Tests assert **status code** as the primary contract (message optional / secondary)
+- README Architecture / SoT table lists **outcome → status → body** above the fold
+- UI branches on status (apply `latest` on 412/422 when present; show conflict UI on 409)
+- Bodies may include complete SoT (`latest`, `conflicting_request`); they must not be the only way to tell failure modes apart
+
+See also: `challenge-domain-sot.mdc` (payload completeness) and `challenge-authoring.mdc` (ship checklist).

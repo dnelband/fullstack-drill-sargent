@@ -9,7 +9,7 @@ Target band: senior. Live budget ~45m. Prefer **slightly harder than average mar
 
 ## Density calibration
 
-- Prefer Hardcore product spines: boards (list + filters + claim + expand→Edit→form→save + 409+latest) **or** flows like timed quiz (exclude ids + deadline serves + summary).
+- Prefer Hardcore product spines: boards (list + filters + claim + expand→Edit→form→save + distinct failure statuses + SoT bodies) **or** flows like timed quiz (exclude ids + deadline serves + summary).
 - Intrinsic **Hard**; ~45m live often **Hardcore**; ~2–4h take-home **Medium/Hard**.
 - Trim surface ~10–15% only if aiming a true 45m Hard (not Hardcore).
 
@@ -20,8 +20,8 @@ Target band: senior. Live budget ~45m. Prefer **slightly harder than average mar
 Keep in tests:
 
 - Documented API filters/order/defaults
-- Claim success + second claim 409 + concurrent claim winner
-- Versioned PATCH success + stale 409 with `message` + `latest`
+- Claim success + second claim **409** + concurrent claim winner
+- Versioned PATCH success + stale **412** with `latest` (not 409 — see `challenge-http-status.mdc`)
 - Claim refreshes list **and** summary (or equivalent aggregate)
 - **Successful save reflects draft notes/status/version** (body + UI)
 - Expand → read-only details + Edit → form (form **not** visible before Edit)
@@ -42,12 +42,13 @@ Row hooks `{id}-*-row` + field tiles. Read-only: `{id}-details-view`. Form: `{id
 ## Before shipping a challenge
 
 1. **Domain SoT check** (see `challenge-domain-sot.mdc`) — fail ship if the UI must invent graded/attempt rows from thin errors
-2. `pnpm test:solution` green
-3. Exercise stubs compile; no spoilers in exercise
-4. Happy-path behavior test present **above** conflict/409 tests
-5. Challenge summary reporter shows **full** assertion messages (no first-line truncation)
-6. README domain fields match shared types and seed ids
-7. Fixtures go through the public API when possible — never force unnatural `_id` types
+2. **HTTP status check** (see `challenge-http-status.mdc`) — distinct codes per failure mode; README outcome→status→body above the fold; tests assert status primarily
+3. `pnpm test:solution` green
+4. Exercise stubs compile; no spoilers in exercise
+5. Happy-path behavior test present **above** conflict / precondition / unprocessable tests
+6. Challenge summary reporter shows **full** assertion messages (no first-line truncation)
+7. README domain fields match shared types and seed ids
+8. Fixtures go through the public API when possible — never force unnatural `_id` types
 
 ## Design notes (prior failures)
 

@@ -13,7 +13,7 @@ Every domain event the UI must remember (attempt, save, claim result, grade, sum
 
 - Prefer the **API** as SoT for graded/attempt outcomes.
 - The client may **append or mirror** complete payloads. It must **not invent** missing fields (`question_id`, `correct`, `correct_option_id`, `latest`, etc.) because an error body was thin.
-- **409/4xx are control signals** (don’t retry / conflict / gone). They are not a substitute for a domain record unless the error payload **is** that full record (e.g. `409 + latest` on dispatch-board — the `latest` object is still complete SoT).
+- **4xx statuses are control signals** (don’t retry / conflict / stale / unprocessable / gone). Pick **distinct** codes per failure mode — do not overload 409 and discriminate via `message` (see `challenge-http-status.mdc`). Error bodies are not a substitute for a domain record unless the payload **is** that full record (e.g. `412 + latest` on a versioned board — the `latest` object is still complete SoT).
 
 ## Forbidden challenge designs
 
@@ -24,7 +24,7 @@ Every domain event the UI must remember (attempt, save, claim result, grade, sum
 
 ## Required shape for attempt-like flows
 
-Finishing an item (submit, timeout, late, skip) → **one complete result payload** (almost always `200`) with every field the summary needs. Use `409` only for “already consumed / don’t append again.”
+Finishing an item (submit, timeout, late, skip) → **one complete result payload** (almost always `200`) with every field the summary needs. Use a **dedicated** conflict/gone status (often `409`) only for “already consumed / don’t append again” — not as a catch-all for every non-200.
 
 ## Author check (block ship if any fail)
 

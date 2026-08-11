@@ -33,6 +33,8 @@ expect(
 
 `toMatchObject` is a **subset** match (extra fields OK). Failures mean a listed field is missing or wrong — not deep equality of the whole body.
 
+For failure contracts, assert **`response.status`** (or UI branch on status) as the primary signal — not message-string matching. See `challenge-http-status.mdc`.
+
 ## UI network mocks
 
 - Stub at `fetch`; pass `init` into mutation handlers so tests can assert request bodies.

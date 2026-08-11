@@ -4,10 +4,10 @@ Vite + Express + MongoDB (native driver) + Tailwind practice workspace.
 
 ## Current challenge
 
-- `challenges/slug-studio/` — draft/publish pages with unique slugs and versioned PATCH
-- `.solutions/slug-studio/` — reference implementation
+- `challenges/product-filter/` — stackable product filters (live ~60m)
+- `.solutions/product-filter/` — reference implementation
 
-Also on disk (inactive): `pulse-quiz`, `brief-desk`.
+Also on disk (inactive): `leave-desk`, `slug-studio`, `pulse-quiz`, `brief-desk`.
 
 ## Setup
 
