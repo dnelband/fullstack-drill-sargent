@@ -1,8 +1,0 @@
-{
-  "Console log": {
-    "scope": "javascript,typescript,javascriptreact,typescriptreact",
-    "prefix": "clg",
-    "body": ["console.log($1);"],
-    "description": "Insert console.log statement"
-  }
-}

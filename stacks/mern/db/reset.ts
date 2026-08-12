@@ -17,6 +17,7 @@ const COLLECTIONS = [
   "coupons",
   "redemptions",
   "idempotency_keys",
+  "queue_items",
 ] as const;
 
 async function main() {

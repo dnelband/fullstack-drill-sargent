@@ -39,6 +39,11 @@ export const CHALLENGES = [
     title: "Coupon Redeem Desk",
     mongoDb: "practice_coupon_redeem",
   },
+  {
+    slug: "hold-queue",
+    title: "Hold Queue",
+    mongoDb: "practice_hold_queue",
+  },
 ] as const;
 
 export type ChallengeSlug = (typeof CHALLENGES)[number]["slug"];

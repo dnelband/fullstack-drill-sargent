@@ -48,6 +48,11 @@ export async function loadChallengeApp(): Promise<ComponentType> {
         ? (await import("../../.solutions/coupon-redeem/client/App.tsx")).ChallengeApp
         : (await import("../../challenges/coupon-redeem/exercise/client/App.tsx"))
             .ChallengeApp;
+    case "hold-queue":
+      return variant === "reference"
+        ? (await import("../../.solutions/hold-queue/client/App.tsx")).ChallengeApp
+        : (await import("../../challenges/hold-queue/exercise/client/App.tsx"))
+            .ChallengeApp;
     default:
       throw new Error(
         `Unsupported challenge slug: ${currentChallenge.slug satisfies never}`,
