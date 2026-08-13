@@ -18,7 +18,7 @@ Active slug: `config/active-challenge.json` (catalog: `config/challenges.ts`).
 
 ```bash
 pnpm challenge --list
-pnpm challenge hold-queue --prepare
+pnpm challenge seat-hold --prepare
 ```
 
 Solve under `challenges/<slug>/exercise/`. References in `.solutions/<slug>/`.

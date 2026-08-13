@@ -13,8 +13,10 @@ export * from "../challenges/orders-inbox/exercise/types.ts";
 export * from "../challenges/ticket-claim/exercise/types.ts";
 export * from "../challenges/coupon-redeem/exercise/types.ts";
 export * from "../challenges/hold-queue/exercise/types.ts";
+export * from "../challenges/seat-hold/exercise/types.ts";
 export { CURRENT_USER_ID } from "./coupon-redeem.ts";
 export { HOLD_TTL_MS } from "./hold-queue.ts";
+export { SEAT_HOLD_TTL_MS } from "./seat-hold.ts";
 
 /** Default API origin for exercise UIs that don't read VITE_API_BASE_URL. */
 export const BASE_URL = "http://localhost:4020";

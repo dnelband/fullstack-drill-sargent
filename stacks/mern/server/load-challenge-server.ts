@@ -41,6 +41,10 @@ export async function loadChallengeServerModule(): Promise<ChallengeServerModule
       return variant === "reference"
         ? (await import("../.solutions/hold-queue/server/index.ts")).default
         : (await import("../challenges/hold-queue/exercise/server/index.ts")).default;
+    case "seat-hold":
+      return variant === "reference"
+        ? (await import("../.solutions/seat-hold/server/index.ts")).default
+        : (await import("../challenges/seat-hold/exercise/server/index.ts")).default;
     default:
       throw new Error(
         `Unsupported challenge slug: ${currentChallenge.slug satisfies never}`,

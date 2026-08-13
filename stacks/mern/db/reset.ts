@@ -18,6 +18,7 @@ const COLLECTIONS = [
   "redemptions",
   "idempotency_keys",
   "queue_items",
+  "seats",
 ] as const;
 
 async function main() {

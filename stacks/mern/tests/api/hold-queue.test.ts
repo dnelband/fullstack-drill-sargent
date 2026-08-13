@@ -84,6 +84,14 @@ describe("hold queue API", () => {
     await db.collection<HoldQueueItem>("queue_items").insertMany(fixtureItems);
   });
 
+  afterEach(async () => {
+    const db = await getDb();
+    await db.collection("members").deleteMany({});
+    await db.collection("queue_items").deleteMany({});
+    await db.collection<HoldQueueMember>("members").insertMany(fixtureMembers);
+    await db.collection<HoldQueueItem>("queue_items").insertMany(fixtureItems);
+  });
+
   afterAll(async () => {
     await closeDb();
   });

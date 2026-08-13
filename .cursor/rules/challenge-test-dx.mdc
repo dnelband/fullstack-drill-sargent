@@ -93,3 +93,19 @@ For failure contracts, assert **`response.status`** (or UI branch on status) as 
 - When a fixture is disputed: state the product reason briefly, then check wiring before arguing design
 
 **Ship criterion:** opaque fixtures are a contract-clarity defect, same class as a wrong assertion.
+
+## Hard rule — never leave the practice DB dirty (2026-08-13)
+
+**Failure mode:** a test `updateOne`s expiry/status for an assert, suite ends, Compass/`pnpm dev` still show the mutated row. Learner trusts the DB, spends ages “debugging” seed/tests, coach argues with them.
+
+### Forbidden
+
+- Mid-test DB mutations (`updateOne` / delete) **without** restoring fixtures after the test (and after the **last** test)
+- Arguing with the learner about what Compass shows when a suite can leave mutated docs behind
+- Assuming `beforeEach` alone is enough — it does not run after the final test
+
+### Required
+
+- Prefer **seeded** expired/edge rows in the fixture over mutating in the test body
+- If a test must mutate storage: restore the full fixture in **`afterEach`** (same wipe+insert as `beforeEach`)
+- After shipping a challenge that mutates Mongo in tests: verify Compass/`db` matches seed after `pnpm test:challenge`
