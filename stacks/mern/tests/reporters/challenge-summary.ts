@@ -120,27 +120,23 @@ function formatFailure(error: unknown): string {
 
   if ("jsonActual" in err) {
     blocks.push(`actual=${formatValue(err.jsonActual)}`);
-  } else if ("actual" in err) {
+  } else if ("actual" in err && err.actual !== undefined) {
     blocks.push(`actual=${formatValue(err.actual)}`);
   }
   if ("jsonExpected" in err) {
     blocks.push(`expected=${formatValue(err.jsonExpected)}`);
-  } else if ("expected" in err) {
+  } else if ("expected" in err && err.expected !== undefined) {
     blocks.push(`expected=${formatValue(err.expected)}`);
   }
 
-  if (blocks.length > 0) {
-    return blocks.join("\n");
-  }
-
-  if (message) {
+  // Prefer a real message over empty actual/expected (common for jest-dom / waitFor).
+  if (message && (blocks.length === 0 || message.length > 20)) {
     const statusMatch = message.match(
       /expected (\d+)(?:\s+"[^"]*")?, got (\d+)(?:\s+"[^"]*")?/i,
     );
     if (statusMatch) {
       return `actual=${statusMatch[2]}\nexpected=${statusMatch[1]}`;
     }
-    // Last resort: try to unmangle Vitest Object dumps inside the message
     const unmangled = message.replace(
       /Object \{[\s\S]*?\n\}/g,
       (chunk) => {
@@ -150,7 +146,14 @@ function formatFailure(error: unknown): string {
           : JSON.stringify(parsed, null, 2);
       },
     );
-    return unmangled;
+    if (blocks.length === 0) {
+      return unmangled;
+    }
+    return `${unmangled}\n${blocks.join("\n")}`;
+  }
+
+  if (blocks.length > 0) {
+    return blocks.join("\n");
   }
 
   return formatValue(error);

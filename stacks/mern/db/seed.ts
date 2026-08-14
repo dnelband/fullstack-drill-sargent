@@ -25,6 +25,10 @@ async function loadSeed(slug: typeof currentChallenge.slug): Promise<(db: Db) =>
       return (await import("../challenges/hold-queue/db/seed.ts")).seedChallenge;
     case "seat-hold":
       return (await import("../challenges/seat-hold/db/seed.ts")).seedChallenge;
+    case "order-lines":
+      return (await import("../challenges/order-lines/db/seed.ts")).seedChallenge;
+    case "memo-desk":
+      return (await import("../challenges/memo-desk/db/seed.ts")).seedChallenge;
     default:
       throw new Error(`No seed for challenge: ${slug satisfies never}`);
   }

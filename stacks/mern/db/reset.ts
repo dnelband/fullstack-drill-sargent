@@ -19,6 +19,8 @@ const COLLECTIONS = [
   "idempotency_keys",
   "queue_items",
   "seats",
+  "order_lines",
+  "memos",
 ] as const;
 
 async function main() {

@@ -49,6 +49,16 @@ export const CHALLENGES = [
     title: "Seat Hold",
     mongoDb: "practice_seat_hold",
   },
+  {
+    slug: "order-lines",
+    title: "Order Lines",
+    mongoDb: "practice_order_lines",
+  },
+  {
+    slug: "memo-desk",
+    title: "Memo Desk",
+    mongoDb: "practice_memo_desk",
+  },
 ] as const;
 
 export type ChallengeSlug = (typeof CHALLENGES)[number]["slug"];
